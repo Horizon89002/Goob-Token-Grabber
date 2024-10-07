@@ -3,7 +3,7 @@ color 3
 
 set /p webhook="Enter the webhook URL: "
 
-REM Ask if the user wants to test the webhook
+
 set /p testwebhook="Do you want to test the webhook? (y/n): "
 if /i "%testwebhook%"=="y" (
     echo Testing the webhook...
