@@ -33,6 +33,8 @@ echo Installing required packages using %PIP_COMMAND%...
 %PIP_COMMAND% install pyinstaller
 %PIP_COMMAND% install pyautogui
 %PIP_COMMAND% install psutil
+%PIP_COMMAND% install colorma
+
 
 echo All required packages installed. You may now use the builder.
 pause
