@@ -3,4 +3,7 @@ discord
 pyinstaller
 pyautogui
 psutil
-colorma
+colorama
+cv2
+pyaudio
+wave
