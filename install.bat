@@ -34,6 +34,9 @@ echo Installing required packages using %PIP_COMMAND%...
 %PIP_COMMAND% install pyautogui
 %PIP_COMMAND% install psutil
 %PIP_COMMAND% install colorma
+%PIP_COMMAND% install cv2
+%PIP_COMMAND% install pyaudio
+%PIP_COMMAND% install wave
 
 
 echo All required packages installed. You may now use the builder.
